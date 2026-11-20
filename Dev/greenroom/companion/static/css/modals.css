@@ -1,0 +1,168 @@
+/* @module static/css/modals.css
+ * @purpose Native <dialog> modal shells, 960px setup wizard, Slide-Over Right Drawer (#editorDialog), and modal form grids.
+ * @inputs Design tokens from tokens.css.
+ * @outputs Styles for .modal-dialog, .modal-wizard, .drawer-right, .omni-results, .wizard-*, and .form-grid. */
+
+.modal-dialog {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  color: var(--text-main);
+  padding: 0;
+  width: min(94vw, 680px);
+  max-height: 88dvh;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.48);
+}
+
+.modal-dialog:modal {
+  overscroll-behavior: contain;
+}
+
+.modal-dialog.modal-wizard {
+  width: min(94vw, 960px);
+  max-height: 90dvh;
+}
+
+.modal-dialog.modal-lg {
+  width: min(94vw, 820px);
+}
+
+.modal-dialog.modal-md {
+  width: min(94vw, 680px);
+}
+
+.modal-dialog.modal-sm {
+  width: min(92vw, 400px);
+}
+
+.modal-dialog::backdrop {
+  background-color: rgba(4, 8, 18, 0.65);
+  backdrop-filter: blur(3px);
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+.modal-dialog.drawer-right[open] {
+  margin: 0 0 0 auto;
+  width: min(490px, 100vw);
+  max-width: 520px;
+  height: 100dvh;
+  max-height: 100dvh;
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  border-inline-end: none;
+  border-block: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-dialog.drawer-right[open] .dialog-body {
+  flex: 1;
+  max-height: calc(100dvh - 60px);
+}
+
+@media (max-width: 900px) {
+  .modal-dialog.drawer-right[open] {
+    width: 100dvw;
+    max-width: 100dvw;
+    border-radius: 0;
+    border-inline-start: none;
+  }
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-block-end: 1px solid var(--border-subtle);
+  position: sticky;
+  inset-block-start: 0;
+  background: var(--bg-card);
+  z-index: 2;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.dialog-body {
+  padding: var(--space-4);
+  overflow-y: auto;
+  max-height: calc(88dvh - 64px);
+}
+
+.wizard-steps {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.wizard-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-block-start: var(--space-3);
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+.omni-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  font-size: 15px;
+  outline: none;
+  min-width: 0;
+}
+
+.omni-results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-3);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.form-field.span-full {
+  grid-column: 1 / -1;
+}
+
+.form-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.muted-hint {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin: var(--space-1) 0;
+}
+
+.error-text {
+  color: var(--danger);
+  font-size: 12px;
+  margin: var(--space-1) 0;
+}
+
+.pin-card {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}

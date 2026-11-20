@@ -1,0 +1,118 @@
+{
+  "folders": [
+    {
+      "name": "1. Greenroom — Dev",
+      "path": "."
+    },
+    {
+      "name": "2. Greenroom — Project Root",
+      "path": ".."
+    }
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": [
+      "tests"
+    ],
+    "dotnet.defaultSolution": "installer/Greenroom.Installer/Greenroom.Installer.csproj",
+    "files.eol": "\n",
+    "files.exclude": {
+      "**/bin": true,
+      "**/obj": true,
+      "**/__pycache__": true,
+      "**/.pytest_cache": true,
+      "**/.mypy_cache": true,
+      "**/.ruff_cache": true,
+      "**/.build_cache": true,
+      "**/node_modules": true,
+      "**/[Dd]esktop.ini": true,
+      "**/[Tt]humbs.db": true,
+      "**/ehthumbs.db": true,
+      "**/.DS_Store": true
+    }
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Test Greenroom Python (pytest)",
+        "type": "shell",
+        "command": "${workspaceFolder}/.venv/Scripts/python.exe",
+        "args": [
+          "-m",
+          "pytest",
+          "tests",
+          "-q"
+        ],
+        "options": {
+          "env": {
+            "APP_ISOLATED_TEST": "1"
+          }
+        },
+        "group": {
+          "kind": "test",
+          "isDefault": true
+        }
+      },
+      {
+        "label": "Build Greenroom.Installer (.NET)",
+        "type": "shell",
+        "command": "dotnet",
+        "args": [
+          "build",
+          "installer/Greenroom.Installer/Greenroom.Installer.csproj",
+          "-c",
+          "Release",
+          "-p:TreatWarningsAsErrors=true"
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": "$msCompile"
+      },
+      {
+        "label": "Test Greenroom.Installer (.NET)",
+        "type": "shell",
+        "command": "dotnet",
+        "args": [
+          "test",
+          "tests/Greenroom.Installer.Tests/Greenroom.Installer.Tests.csproj",
+          "-c",
+          "Release",
+          "-p:TreatWarningsAsErrors=true"
+        ],
+        "options": {
+          "env": {
+            "APP_ISOLATED_TEST": "1"
+          }
+        },
+        "group": {
+          "kind": "test",
+          "isDefault": false
+        }
+      },
+      {
+        "label": "Package DualSetup8 Release Bundle",
+        "type": "shell",
+        "command": "${workspaceFolder}/.venv/Scripts/python.exe",
+        "args": [
+          "scripts/build_installer.py",
+          "--no-pause"
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        }
+      }
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-python.python",
+      "ms-dotnettools.csdevkit",
+      "dbaeumer.vscode-eslint"
+    ]
+  }
+}

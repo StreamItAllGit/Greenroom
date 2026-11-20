@@ -1,0 +1,93 @@
+# Greenroom Automation Schedule
+# Used by `greenroom cli tick` to evaluate which jobs are due.
+
+jobs:
+  # Web AI Agent Drops Queue (Fast Auto-Ingest & Archiving)
+  - name: "process_drops"
+    interval_minutes: 15 # Every 15 minutes
+    description: "Scan drops/agent_queue/ (and Google Drive Greenroom_Drops) for Web AI Agent drop blobs, ingest into greenroom.db, and sort into drops/processed/"
+    enabled: true
+    run_if_missed: true
+
+  # Media and Games
+  - name: "collect_library"
+    interval_minutes: 1440 # 24 hours (nightly)
+    description: "Scan local ROM and rip sets for verified backups"
+    enabled: true
+    run_if_missed: true
+
+  - name: "collect_plex"
+    interval_minutes: 1440 # 24 hours (nightly)
+    description: "Query local Plex API for media changes"
+    enabled: true
+    run_if_missed: true
+
+  - name: "collect_infinitebacklog"
+    interval_minutes: 1440 # 24 hours (daily)
+    description: "Scrape InfiniteBacklog completion status"
+    enabled: true
+    run_if_missed: true
+
+  - name: "collect_pricecharting_owned"
+    interval_minutes: 720 # 12 hours
+    description: "Ingest personal owned PriceCharting collection CSV exports from drops/manual_csv/"
+    enabled: true
+    run_if_missed: true
+
+  - name: "import_dats"
+    interval_minutes: 720 # 12 hours
+    description: "Ingest No-Intro and Redump DAT/XML hash catalogs from drops/dats/ and data/dats/"
+    enabled: true
+    run_if_missed: true
+
+  - name: "collect_takeout"
+    interval_minutes: 720 # 12 hours
+    description: "Scan Google Drive Takeout for YouTube watch history, InfiniteBacklog, and Goodreads"
+    enabled: true
+    run_if_missed: true
+
+  - name: "process_backlog_merge"
+    interval_minutes: 1440 # 24 hours (runs after collectors)
+    description: "Merge scraped and scanned games into canonical games table"
+    dependencies: ["collect_library", "collect_infinitebacklog"]
+    enabled: false
+    run_if_missed: true
+
+  # Personal Logistics & Content (Staged for Phase 2)
+  - name: "collect_feeds"
+    interval_minutes: 120 # Every 2 hours
+    description: "Poll RSS feeds for news, trivia, and releases"
+    enabled: false
+    run_if_missed: true
+
+  - name: "process_watch_queue"
+    interval_minutes: 120 # Every 2 hours
+    description: "Rotate YouTube playlists, calculate watch buffer, and build queue links"
+    enabled: false
+    run_if_missed: true
+
+  - name: "process_review_queue"
+    interval_minutes: 360 # Every 6 hours
+    description: "Recalculate eligible unreviewed completed games for editorial review"
+    enabled: true
+    run_if_missed: true
+
+  - name: "process_series_pools"
+    interval_minutes: 720 # Every 12 hours
+    description: "Update dynamic weights across configured series game pools"
+    enabled: true
+    run_if_missed: true
+
+  - name: "sync_pricecharting"
+    interval_minutes: 10080 # 7 days (weekly)
+    description: "Download and update 124,000+ title PriceCharting custom price guide CSV"
+    enabled: true
+    run_if_missed: true
+
+  # External Services & Multi-Platform Telemetry
+  - name: "sync_telemetry"
+    interval_minutes: 180 # Every 3 hours
+    description: "Synchronize all external APIs and platform telemetry (Bluesky, Buffer, Steam, Twitch, YouTube, RetroAchievements)"
+    enabled: true
+    run_if_missed: true
+

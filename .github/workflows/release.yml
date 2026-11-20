@@ -1,0 +1,157 @@
+name: Release & SignPath Signing
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      APP_ISOLATED_TEST: "1"
+      FOUNDATION_SUPPRESS_MODALS: "1"
+    outputs:
+      artifact_id: ${{ steps.upload-unsigned.outputs.artifact-id }}
+      version: ${{ steps.meta.outputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install Python dependencies
+        run: python -m pip install --upgrade pip && pip install -r Dev/requirements-dev.txt
+
+      - name: Resolve version & acquire pinned Foundation SDK
+        id: meta
+        shell: pwsh
+        run: |
+          $tagName = "${{ github.ref_name }}"
+          if ($tagName -match '^v(.+)$') {
+            $ver = $matches[1]
+          } else {
+            $state = Get-Content -LiteralPath "active.state" -Raw | ConvertFrom-Json
+            $ver = [string]$state.version
+          }
+          "version=$ver" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+          $manifest = Get-Content -LiteralPath "Dev/suite.manifest.json" -Raw | ConvertFrom-Json
+          $sdkVer = [string]$manifest.sdkVersion
+          $zipUrl = "https://github.com/StreamItAllGit/Foundation/releases/download/v$sdkVer/Foundation-v$sdkVer.zip"
+          $tmpZip = Join-Path $env:RUNNER_TEMP "Foundation-v$sdkVer.zip"
+          $tmpSdk = Join-Path $env:RUNNER_TEMP "FoundationSdk"
+          Invoke-WebRequest -Uri $zipUrl -OutFile $tmpZip -UseBasicParsing
+          if (Test-Path $tmpSdk) { Remove-Item $tmpSdk -Recurse -Force }
+          Expand-Archive -Path $tmpZip -DestinationPath $tmpSdk -Force
+
+          New-Item -ItemType Directory -Path "Dev/lib" -Force | Out-Null
+          Copy-Item (Join-Path $tmpSdk "Foundation.*") "Dev/lib/" -Force
+          foreach ($dirName in @("foundation_core", "WebAssets", "tools")) {
+            $srcSub = Join-Path $tmpSdk $dirName
+            if (Test-Path $srcSub) { Copy-Item $srcSub "Dev/lib/" -Recurse -Force }
+          }
+          if (Test-Path (Join-Path $tmpSdk "sdk-manifest.json")) {
+            Copy-Item (Join-Path $tmpSdk "sdk-manifest.json") "Dev/lib/sdk-manifest.json" -Force
+          }
+
+      - name: Run Python & .NET test suites
+        shell: pwsh
+        run: |
+          $env:PYTHONPATH = "$PWD\Dev;$PWD\Dev\lib"
+          pytest Dev/tests -q
+          dotnet test Dev/tests/Greenroom.Installer.Tests/Greenroom.Installer.Tests.csproj -c Release -p:TreatWarningsAsErrors=true --logger "console;verbosity=minimal"
+
+      - name: Build unsigned DualSetup8 release bundle
+        shell: pwsh
+        run: |
+          python Dev/scripts/build_installer.py --version "${{ steps.meta.outputs.version }}" --skip-signing --skip-audit --no-pause
+          New-Item -ItemType Directory -Path "ci-bundle" -Force | Out-Null
+          Get-ChildItem "Releases/Latest" -File | Where-Object { $_.Name -notlike "*-Setup-*.exe" -and $_.Name -ne "SHA256SUMS.txt" } | ForEach-Object {
+            Copy-Item $_.FullName "ci-bundle/" -Force
+          }
+          Copy-Item "Releases/Latest.7z" "ci-bundle/Latest.7z" -Force
+
+      - name: Upload unsigned DualSetup8 installers for SignPath
+        id: upload-unsigned
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-installers
+          path: Releases/Latest/*-Setup-*.exe
+          if-no-files-found: error
+
+      - name: Upload remaining release bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-bundle
+          path: ci-bundle/*
+          if-no-files-found: error
+
+  sign:
+    needs: build
+    runs-on: windows-latest
+    if: ${{ vars.SIGNPATH_PROJECT_SLUG != '' }}
+    steps:
+      - name: Download release bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: release-bundle
+          path: dist
+
+      - name: Submit signing request to SignPath
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ secrets.SIGNPATH_ORG_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'release-signing' }}
+          github-artifact-id: ${{ needs.build.outputs.artifact_id }}
+          wait-for-completion: true
+          output-artifact-directory: dist
+
+      - name: Regenerate SHA256SUMS.txt & compute release metadata
+        id: relmeta
+        shell: pwsh
+        run: |
+          $lines = Get-ChildItem "dist" -File | Where-Object { $_.Name -ne "SHA256SUMS.txt" -and $_.Name -ne "Latest.7z" } | Sort-Object { $_.Name.ToLowerInvariant() } | ForEach-Object {
+            $h = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$h  $($_.Name)"
+          }
+          [System.IO.File]::WriteAllText((Resolve-Path "dist").Path + "\SHA256SUMS.txt", ($lines -join "`n") + "`n", [System.Text.Encoding]::ASCII)
+
+          $ver = "${{ needs.build.outputs.version }}"
+          $isPre = if ($ver -match '^0\.|-(alpha|beta|rc|nightly|hf)') { "true" } else { "false" }
+          "prerelease=$isPre" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Upload signed DualSetup8 release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-release
+          path: dist/*
+
+      - name: Publish signed release assets to GitHub Releases
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Greenroom ${{ github.ref_name }}"
+          body_path: dist/RELEASE_NOTES.md
+          prerelease: ${{ steps.relmeta.outputs.prerelease }}
+          files: |
+            dist/Greenroom-Setup-*.exe
+            dist/Greenroom-Offline-Setup-*.exe
+            dist/Greenroom-*-Portable.zip
+            dist/Latest.7z
+            dist/SHA256SUMS.txt

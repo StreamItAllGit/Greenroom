@@ -1,0 +1,73 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions & .NET build outputs
+*.so
+bin/
+obj/
+tests/Greenroom.Installer.Tests/bin/
+tests/Greenroom.Installer.Tests/obj/
+installer/**/bin/
+installer/**/obj/
+installer/**/obj_payload/
+installer/**/publish_out/
+
+# Distribution / packaging
+.Python
+build/
+.build_cache/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+env/
+venv/
+ENV/
+
+# Local-only documentation subfolders (plans, reports, tests, archive)
+docs/*/
+
+# Data & secrets
+config/greenroom.yaml
+config/*.bak_*
+data/notion_hub.local.json
+data/config/
+data/token.json
+data/credentials.json
+data/greenroom.db
+data/greenroom.db-shm
+data/greenroom.db-wal
+data/greenroom.lock
+data/companion.pid
+data/companion.log
+data/companion_secret.key
+data/pricecharting.csv
+data/backups/
+data/quarantine/
+data/config_snapshots/
+drops/
+
+# Logs, temp & OS/Drive junk
+logs/
+*.log
+.pytest_cache/
+desktop.ini
+Thumbs.db
+ehthumbs.db
+.DS_Store
+._*

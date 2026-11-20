@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "greenroom"
+version = "0.3.0"
+description = "Local-first media catalog, kitchen planner, and creator companion hub"
+license = { text = "MPL-2.0" }
+requires-python = ">=3.11"
+authors = [
+    { name = "StreamItAll" }
+]
+dependencies = [
+    "pydantic>=2.6.0",
+    "pyyaml>=6.0.1",
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.3",
+    "mcp>=1.0.0",
+    "starlette>=0.27.0",
+    "uvicorn>=0.31.1",
+    "sse-starlette>=3.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
+media = [
+    "yt-dlp>=2024.0.0",
+]
+google-workspace = [
+    "google-api-python-client>=2.110.0",
+    "google-auth-oauthlib>=1.2.0",
+    "google-auth-httplib2>=0.2.0",
+    "gspread>=6.0.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["greenroom*"]
+exclude = ["data*", "drops*", "logs*", "tests*", "scripts*", "installer*", "config*", ".build_cache*"]
+
+[tool.setuptools.package-data]
+"greenroom.companion" = ["static/**/*", "static/*"]
+
+[project.scripts]
+greenroom = "greenroom.cli:main"
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+norecursedirs = [".venv", ".build_cache", "data", "drops", "logs", "Archive", "Builds", "Releases", "greenroom.egg-info"]

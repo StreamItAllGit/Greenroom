@@ -1,0 +1,48 @@
+name: Bug Report
+description: Report a bug or regression in Greenroom (Companion PWA, CLI, collectors, MCP server, or Windows installer)
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component / Module
+      options:
+        - Companion Web / PWA UI
+        - CLI & Task Scheduler
+        - Catalog, Dedup & DAT Verifier
+        - Kitchen & Macro Tracker
+        - Studio & Series Pools
+        - Dual MCP Server (stdio / Web)
+        - Greenroom.Installer (.NET 8)
+        - Packaging & Release Scripts
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Greenroom Version
+      description: Release version or Git commit SHA where you observed the issue.
+      placeholder: "e.g., v0.3.0 (Beta)"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the Bug
+      description: Clear explanation of expected vs. actual behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Minimal steps, CLI flags, or configuration that trigger the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Environment & Error Output
+      description: OS version, Python/.NET version, or redacted log output (strip any personal paths, tokens, or webhooks).
+      render: text

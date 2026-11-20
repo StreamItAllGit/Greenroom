@@ -1,0 +1,51 @@
+{
+  "$schema": "https://schemas.local/manifest.v2.json",
+  "schemaVersion": 2,
+  "manifestType": "installer-manifest",
+  "appId": "greenroom",
+  "version": "0.3.0",
+  "updatedAtUtc": "2026-11-20T09:42:00Z",
+  "displayName": "Greenroom",
+  "publisher": "StreamItAll",
+  "subtitle": "Local-First Media Catalog, Kitchen Planner & Creator Companion (MPL-2.0)",
+  "studioName": "StreamItAll",
+  "suiteId": "mother",
+  "umbrellaSubpath": "Greenroom",
+  "mainExecutableRelativePath": "Open Greenroom.bat",
+  "installerDeliveryKind": "onlineSetup",
+  "payloadDownloadUrl": "https://github.com/StreamItAllGit/Greenroom/releases/download/v0.3.0/Greenroom-v0.3.0-win-x64-Portable.zip",
+  "payloadAssets": [
+    {
+      "installProfile": "full",
+      "fileName": "Greenroom-v0.3.0-win-x64-Portable.zip",
+      "expectedSizeBytes": 0,
+      "expectedSha256": "",
+      "relativeSubdir": ""
+    }
+  ],
+  "theme": {
+    "accent": "#10B981",
+    "surfaceBackdrop": "#0E0E10",
+    "surfaceCard": "#18181B",
+    "textPrimary": "#ECEFF4",
+    "border": "#27272A"
+  },
+  "layoutMode": "single-line",
+  "supportedProfiles": [
+    "lightweight",
+    "full",
+    "custom"
+  ],
+  "defaultProfile": "full",
+  "allowAutoStart": false,
+  "allowLegacyMigration": true,
+  "secondaryPickers": [
+    {
+      "flagName": "--suite-dir",
+      "label": "Mother Suite Directory (Optional):",
+      "defaultPath": "",
+      "placeholder": "Optional — integrate under Mother Suite",
+      "tooltip": "Leave standalone under %LOCALAPPDATA%\\Programs\\Greenroom or choose a Mother Suite umbrella folder."
+    }
+  ]
+}

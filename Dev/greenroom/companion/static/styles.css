@@ -1,0 +1,16 @@
+/* @module static/styles.css
+ * @purpose Root stylesheet aggregator importing modular <400 LOC CSS slices for Greenroom Companion.
+ * @inputs Modular CSS slices under /static/css/*.css.
+ * @outputs Unified styles for desktop and responsive mobile viewports. */
+
+@import "./css/tokens.css?v=0.3.0";
+@import "./css/shell.css?v=0.3.0";
+@import "./css/components.css?v=0.3.0";
+@import "./css/tables.css?v=0.3.0";
+@import "./css/modals.css?v=0.3.0";
+@import "./css/mobile.css?v=0.3.0";
+
+[hidden],
+.task-live-badge[hidden] {
+  display: none !important;
+}

@@ -1,0 +1,32 @@
+name: Feature Request
+description: Propose a new capability, domain module improvement, or integration for Greenroom
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: target_area
+    attributes:
+      label: Target Area
+      options:
+        - Catalog, Scout & Hash Verification
+        - Kitchen, Pantry & Nutrition
+        - Studio, Buffers & Pools
+        - Companion UI & Onboarding
+        - Dual MCP & Agent Drops
+        - CLI, Installer & Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What workflow gap or friction should Greenroom solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Behavior
+      description: Suggested UI controls, CLI flags, API endpoints, or configuration options.
+    validations:
+      required: true

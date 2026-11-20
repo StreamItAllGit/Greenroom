@@ -1,0 +1,85 @@
+{
+  "$schema": "https://schemas.local/suite-manifest.v2.json",
+  "schemaVersion": 2,
+  "manifestType": "suite-app",
+  "appId": "greenroom",
+  "version": "0.3.0",
+  "updatedAtUtc": "2026-11-20T10:25:00.000Z",
+  "suiteId": "mother",
+  "displayName": "Greenroom",
+  "minSuiteVersion": "0.2.0",
+  "sdkVersion": "0.5.2",
+  "residencyMode": "warm",
+  "umbrellaSubpath": "StreamItAll\\Mother\\Greenroom",
+  "relativeSubdir": "Greenroom",
+  "appUserModelId": "StreamItAll.Greenroom",
+  "internalPort": 8420,
+  "defaultPort": 8420,
+  "httpsPort": 8443,
+  "healthEndpoint": "/api/v1/health",
+  "statusEndpoint": "/api/v1/status",
+  "telemetryEndpoint": "/api/v1/telemetry",
+  "schedulerStatusEndpoint": "/api/v1/scheduler/status",
+  "schedulerDeferEndpoint": "/api/v1/scheduler/defer",
+  "stopAllJobsEndpoint": "/api/v1/jobs/stop-all",
+  "coexistenceStatusEndpoint": "/api/v1/coexistence/status",
+  "singleTrayWhenSupervised": true,
+  "singleTrayMutex": "Global\\Mother_Supervisor_Active",
+  "managedEnvVar": "MANAGED_BY_SUITE",
+  "executable": "scripts/run_greenroom.bat",
+  "workerArgs": [
+    "serve",
+    "--no-tray",
+    "--tray-only"
+  ],
+  "commands": {
+    "startDaemon": "scripts/run_greenroom.bat serve --no-tray --tray-only --managed-by-mother",
+    "start": "scripts/start-daemon.bat --tray-only --managed-by-suite",
+    "stopDaemon": "scripts/stop-daemon.bat --no-pause",
+    "statusCheck": "scripts/status-check.bat --no-pause",
+    "backupNow": "scripts/backup-now.bat --no-pause"
+  },
+  "endpoints": {
+    "health": "/api/v1/health",
+    "status": "/api/v1/status",
+    "telemetry": "/api/v1/telemetry",
+    "schedulerStatus": "/api/v1/scheduler/status",
+    "schedulerDefer": "/api/v1/scheduler/defer",
+    "stopAllJobs": "/api/v1/jobs/stop-all",
+    "coexistenceStatus": "/api/v1/coexistence/status",
+    "shutdown": "/api/system/shutdown",
+    "ui": "./"
+  },
+  "schedules": [
+    {
+      "scheduleId": "greenroom_process_drops",
+      "name": "Process Agent Drops Queue",
+      "cadence": "10m",
+      "timeUtc": "00:00",
+      "runIfMissed": true,
+      "targetDrives": ["local"],
+      "triggerEndpoint": "/api/v1/tasks/run/process_drops"
+    },
+    {
+      "scheduleId": "greenroom_backup_db",
+      "name": "Compressed .7z Database Backup",
+      "cadence": "daily",
+      "timeUtc": "03:30",
+      "runIfMissed": true,
+      "targetDrives": ["local"],
+      "triggerEndpoint": "/api/v1/tasks/run/backup_db"
+    }
+  ],
+  "paths": {
+    "dataDir": "data",
+    "configDir": "config",
+    "logDir": "logs",
+    "crashesDir": "logs/crashes",
+    "quarantineDir": "data/quarantine"
+  },
+  "containerTier": "Tier A (4-Folder)",
+  "ecosystemTier": "Tier2_SisterApp",
+  "appArchetype": "SIS",
+  "activeMilestone": "0.3.0",
+  "goalMajorVersion": "1.0.0"
+}

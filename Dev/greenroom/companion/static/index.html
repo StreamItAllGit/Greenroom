@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-density="compact">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <script>
+  try {
+    var savedTheme = localStorage.getItem("gr_theme_mode") || localStorage.getItem("color-scheme");
+    if (savedTheme === "light" || savedTheme === "dark") {
+      document.documentElement.dataset.theme = savedTheme;
+      document.querySelector('meta[name="color-scheme"]').content = savedTheme;
+    }
+    var savedDensity = localStorage.getItem("gr_density");
+    if (savedDensity === "compact" || savedDensity === "default" || savedDensity === "comfortable") {
+      document.documentElement.dataset.density = savedDensity;
+    }
+  } catch (err) { console.debug("Theme pre-paint skipped:", err); }
+  </script>
+  <meta name="theme-color" content="#10b981">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Greenroom</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./static/icons/icon-192.png" sizes="192x192" type="image/png">
+  <link rel="icon" href="./static/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./static/icons/icon-192.png">
+  <link rel="stylesheet" href="./static/styles.css?v=0.3.0">
+</head>
+<body data-theme="dark" data-density="compact">
+  <div class="app-shell" id="appShell">
+    <!-- Desktop Collapsible Sidebar Rail (220px <-> 56px) -->
+    <aside class="sidebar" id="appSidebar" aria-label="Primary Workspaces">
+      <div class="brand">
+        <img src="./static/icons/icon.svg" alt="" class="brand-icon" width="30" height="30">
+        <div class="brand-text nav-label">
+          <span class="brand-title">Greenroom</span>
+          <span class="brand-sub" id="versionBadge">v0.3.0</span>
+        </div>
+        <button type="button" class="icon-btn sidebar-toggle-btn" id="sidebarCollapseBtn" title="Toggle Sidebar Rail (Ctrl+B)|Collapse or expand the desktop navigation rail between 220px and 56px" aria-label="Toggle Sidebar Rail" aria-expanded="true">«</button>
+      </div>
+
+      <nav class="nav-list" id="desktopNav">
+        <button type="button" class="nav-btn active" data-view="dashboard" title="Command Center (1)|View active module summaries, system health, and quick tasks">
+          <span class="nav-ico" aria-hidden="true">◈</span>
+          <span class="nav-label">Command Center</span>
+        </button>
+        <button type="button" class="nav-btn" data-view="catalog" data-domain="catalog" title="Catalog &amp; Scout (2)|Browse games, media, books, checksum verification, and deal scouting">
+          <span class="nav-ico" aria-hidden="true">❖</span>
+          <span class="nav-label">Catalog &amp; Scout</span>
+        </button>
+        <button type="button" class="nav-btn" data-view="kitchen" data-domain="kitchen" hidden title="Kitchen &amp; Macros (3)|Track pantry stock, waste tiers, barcode items, and daily nutrition targets">
+          <span class="nav-ico" aria-hidden="true">♨</span>
+          <span class="nav-label">Kitchen &amp; Macros</span>
+        </button>
+        <button type="button" class="nav-btn" data-view="production" data-domain="studio" hidden title="Creator Studio (4)|Manage production cuts, weighted series pools, and staged review drafts">
+          <span class="nav-ico" aria-hidden="true">▶</span>
+          <span class="nav-label">Creator Studio</span>
+        </button>
+        <button type="button" class="nav-btn" data-view="tasks" title="Task Runner (5)|Run background jobs, inspect live logs, and control the task queue">
+          <span class="nav-ico" aria-hidden="true">⚡</span>
+          <span class="nav-label">Task Runner</span>
+        </button>
+        <button type="button" class="nav-btn" data-view="schedules" title="Schedules (6)|Configure interval timers, missed-run catch-up, and optional supervisor deferral">
+          <span class="nav-ico" aria-hidden="true">⏱</span>
+          <span class="nav-label">Schedules</span>
+        </button>
+        <button type="button" class="nav-btn" data-view="database" title="Database Explorer (7)|Inspect, filter, export, and edit local SQLite database tables">
+          <span class="nav-ico" aria-hidden="true">▤</span>
+          <span class="nav-label">DB Explorer</span>
+        </button>
+        <button type="button" class="nav-btn" data-view="settings" title="Settings (8)|Configure modules, profiles, appearance, API keys, system doctor, and backups">
+          <span class="nav-ico" aria-hidden="true">⚙</span>
+          <span class="nav-label">Settings</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="drive-telemetry-box nav-label" id="driveTelemetryFooter" aria-label="Live Drive Free Space">
+          <div class="drive-telemetry-loading muted-hint">Checking drive space...</div>
+        </div>
+        <div class="conn-pill" id="connStatusPill">
+          <span class="dot ok"></span>
+          <span class="nav-label" id="connStatusText">ONLINE</span>
+        </div>
+        <button type="button" class="ghost-btn full-w" id="openPrefsBtn" title="Phone Pairing &amp; Preferences|Configure theme, layout density, HTTPS access, and remote PIN">
+          <span aria-hidden="true">⚙</span>
+          <span class="nav-label">Display &amp; Pairing</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace Column -->
+    <div class="main-col">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1 class="view-heading" id="viewHeading">Command Center</h1>
+          <span class="task-live-badge" id="activeTaskBanner" hidden>
+            <span class="spinner" aria-hidden="true"></span>
+            <span id="activeTaskText"></span>
+          </span>
+          <span class="badge badge-status badge-yellow num" id="queueDepthBadge" hidden>QUEUE: 0</span>
+        </div>
+
+        <div class="topbar-actions topbar-right">
+          <div class="exec-controls-strip" role="group" aria-label="Task Queue Controls">
+            <button type="button" class="chip-btn" id="topQueueNextBtn" title="Queue Next Tick|Enqueue the next scheduled telemetry check in the queue">⏭ Queue Next</button>
+            <button type="button" class="chip-btn" id="topPauseQueueBtn" title="Pause Queue|Pause or resume background task queue execution">⏸ Pause</button>
+            <button type="button" class="chip-btn" id="topSuspendQueueBtn" title="Suspend Queue|Temporarily suspend all background task dispatching">❄ Suspend</button>
+            <button type="button" class="chip-btn danger-chip" id="topStopAllBtn" title="Stop All Jobs|Cancel active jobs and clear all pending tasks in the queue">🛑 Stop All</button>
+            <button type="button" class="chip-btn" id="topDryRunBtn" title="Dry Run Mode|Preview collector and media actions without changing files or database rows">🧪 Dry Run</button>
+          </div>
+          <button type="button" class="chip-btn" id="topAccountsBtn" title="Keys &amp; Logins|Jump directly to Accounts, API Keys &amp; Library Paths in Settings">🔑 Keys &amp; Logins</button>
+          <button type="button" class="primary-btn" id="installPwaBtn" hidden title="Install App|Install Greenroom Companion as a standalone desktop or mobile app">📲 Install</button>
+          <button type="button" class="omni-trigger" id="omniTriggerBtn" title="Omni-Search (Ctrl+K)|Search across games, prices, pantry items, media, books, and cuts" aria-label="Search database">
+            <span aria-hidden="true">⌕</span>
+            <span class="omni-placeholder">Search library, prices, pantry, cuts...</span>
+            <kbd class="kbd-hint">Ctrl K</kbd>
+          </button>
+          <button type="button" class="icon-btn" id="quickSnapshotBtn" title="Save Config Snapshot (Ctrl+S)|Capture an instant rollback snapshot of your configuration" aria-label="Save Config Snapshot">💾</button>
+          <button type="button" class="icon-btn" id="toggleLogDrawerBtn" title="Live Log Drawer (Ctrl+`)|Open or close the docked bottom execution log console" aria-label="Toggle Live Log Drawer">&gt;_</button>
+          <button type="button" class="icon-btn" id="openShortcutsBtn" title="Keyboard Shortcuts (?)|View all global keyboard shortcuts and workspace hotkeys" aria-label="Keyboard Shortcuts">?</button>
+          <button type="button" class="icon-btn" id="refreshBtn" title="Refresh Workspace|Reload live data for the currently active workspace" aria-label="Refresh Active Workspace">↻</button>
+          <button type="button" class="icon-btn mobile-only" id="mobilePrefsBtn" title="Display &amp; Pairing|Open theme, density, and mobile pairing settings" aria-label="Display &amp; Pairing">⚙</button>
+        </div>
+      </header>
+
+      <main class="workspace" id="workspaceRoot" tabindex="-1">
+        <div class="loading-state">Loading Greenroom workspace...</div>
+      </main>
+
+      <!-- Docked & Resizable Bottom Live Log Pane (Ctrl+`) -->
+      <section class="live-log-drawer" id="liveLogDrawer" data-size-preset="M" hidden aria-label="Docked Execution Log Console">
+        <div class="drawer-resize-handle" id="drawerResizeHandle" role="separator" aria-orientation="horizontal" tabindex="0" aria-label="Resize log drawer" title="Resize Log Console|Drag vertically or press Up/Down arrows to resize the console height"></div>
+        <div class="drawer-header">
+          <div class="toolbar">
+            <strong>&gt;_ Live Execution Console</strong>
+            <span class="kbd-hint">Ctrl + `</span>
+            <select id="drawerLogLevelFilter" class="field-select" aria-label="Log Level Filter">
+              <option value="all">All Levels</option>
+              <option value="info">Info</option>
+              <option value="warn">Warn</option>
+              <option value="error">Error</option>
+            </select>
+          </div>
+          <div class="toolbar">
+            <div class="drawer-size-presets" role="group" aria-label="Log Console Height Presets">
+              <button type="button" class="chip-btn drawer-preset-btn" data-drawer-size="S" title="Small Console (25%)|Set log console height to 25% of viewport">S</button>
+              <button type="button" class="chip-btn drawer-preset-btn active" data-drawer-size="M" title="Medium Console (40%)|Set log console height to 40% of viewport">M</button>
+              <button type="button" class="chip-btn drawer-preset-btn" data-drawer-size="L" title="Large Console (60%)|Set log console height to 60% of viewport">L</button>
+            </div>
+            <button type="button" class="ghost-btn" id="drawerClearLogsBtn" title="Clear Log Console|Clear currently buffered log lines from the console view">Clear</button>
+            <button type="button" class="ghost-btn" id="drawerCloseBtn" title="Close Log Console (Ctrl+`)|Collapse the docked execution log console">✕</button>
+          </div>
+        </div>
+        <div class="log-console" id="drawerLogStream"></div>
+      </section>
+
+      <!-- Persistent 26px Footer Status Bar -->
+      <footer class="footer-statusbar" id="footerStatusBar" aria-label="Workspace Status Bar">
+        <div class="footer-group">
+          <span class="badge badge-status badge-green" id="footerConnBadge">ONLINE</span>
+          <span id="footerTaskState">IDLE</span>
+          <span class="footer-sep footer-hide-sm">|</span>
+          <span class="footer-hide-sm" id="footerModulesSummary">Modules: Catalog</span>
+        </div>
+        <div class="footer-group">
+          <span class="badge badge-status badge-neutral footer-hide-sm" id="footerDensityBadge">COMPACT</span>
+          <span class="footer-hide-sm" id="footerVersionText">v0.3.0</span>
+          <button type="button" class="footer-btn" id="footerLogsToggleBtn" title="Toggle Execution Console (Ctrl+`)|Show or hide the docked execution log console">&gt;_ Logs</button>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Mobile Bottom Tab Bar -->
+    <nav class="bottom-nav" id="mobileNav" aria-label="Mobile Workspaces">
+      <button type="button" class="bnav-btn active" data-view="dashboard">
+        <span class="bnav-ico" aria-hidden="true">◈</span>
+        <span>Command</span>
+      </button>
+      <button type="button" class="bnav-btn" data-view="catalog" data-domain="catalog">
+        <span class="bnav-ico" aria-hidden="true">❖</span>
+        <span>Catalog</span>
+      </button>
+      <button type="button" class="bnav-btn" data-view="kitchen" data-domain="kitchen" hidden>
+        <span class="bnav-ico" aria-hidden="true">♨</span>
+        <span>Kitchen</span>
+      </button>
+      <button type="button" class="bnav-btn" data-view="production" data-domain="studio" hidden>
+        <span class="bnav-ico" aria-hidden="true">▶</span>
+        <span>Studio</span>
+      </button>
+      <button type="button" class="bnav-btn" data-view="tasks">
+        <span class="bnav-ico" aria-hidden="true">⚡</span>
+        <span>Tasks</span>
+      </button>
+      <button type="button" class="bnav-btn" data-view="schedules">
+        <span class="bnav-ico" aria-hidden="true">⏱</span>
+        <span>Sched</span>
+      </button>
+      <button type="button" class="bnav-btn" data-view="database">
+        <span class="bnav-ico" aria-hidden="true">▤</span>
+        <span>DB</span>
+      </button>
+      <button type="button" class="bnav-btn" data-view="settings">
+        <span class="bnav-ico" aria-hidden="true">⚙</span>
+        <span>Settings</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Toast Stack -->
+  <div class="toast-region" id="toastRegion" role="status" aria-live="polite"></div>
+
+  <!-- First-Run Setup Wizard Dialog (960px max) -->
+  <dialog id="onboardingDialog" class="modal-dialog modal-wizard" closedby="none" aria-labelledby="onboardingDialogTitle">
+    <div class="dialog-header">
+      <h2 id="onboardingDialogTitle">Welcome to Greenroom Setup</h2>
+      <button type="button" class="ghost-btn" id="onboardingCloseBtn" hidden data-close-dialog="onboardingDialog">Close</button>
+    </div>
+    <div class="dialog-body" id="onboardingBody"></div>
+  </dialog>
+
+  <!-- Omni-Search Modal Dialog (Light-Dismiss) -->
+  <dialog id="omniDialog" class="modal-dialog modal-lg" closedby="any" aria-labelledby="omniDialogTitle">
+    <div class="dialog-header">
+      <h2 id="omniDialogTitle" class="sr-only">Omni-Search Database</h2>
+      <input type="search" id="omniInput" class="omni-input" placeholder="Search games, media, books, prices, pantry items, and cuts..." autocomplete="off">
+      <button type="button" class="ghost-btn" data-close-dialog="omniDialog">Esc</button>
+    </div>
+    <div class="dialog-body omni-results" id="omniResults">
+      <p class="muted-hint">Type any title, platform, ingredient, series, or draft keyword.</p>
+    </div>
+  </dialog>
+
+  <!-- Dynamic Record Inspector / Editor Slide-Over Right Drawer (Light-Dismiss) -->
+  <dialog id="editorDialog" class="modal-dialog modal-md drawer-right" closedby="any" aria-labelledby="editorDialogTitle">
+    <div class="dialog-header">
+      <h2 id="editorDialogTitle">Inspect &amp; Edit Record</h2>
+      <button type="button" class="ghost-btn" data-close-dialog="editorDialog">✕</button>
+    </div>
+    <div class="dialog-body" id="editorBody"></div>
+  </dialog>
+
+  <!-- Preferences & Phone Pairing Modal Dialog (Light-Dismiss) -->
+  <dialog id="prefsDialog" class="modal-dialog modal-md" closedby="any" aria-labelledby="prefsDialogTitle">
+    <div class="dialog-header">
+      <h2 id="prefsDialogTitle">Display &amp; Remote Pairing</h2>
+      <button type="button" class="ghost-btn" data-close-dialog="prefsDialog">✕</button>
+    </div>
+    <div class="dialog-body" id="prefsBody"></div>
+  </dialog>
+
+  <!-- Keyboard Shortcuts Reference Modal (?) -->
+  <dialog id="shortcutsDialog" class="modal-dialog modal-md" closedby="any" aria-labelledby="shortcutsDialogTitle">
+    <div class="dialog-header">
+      <h2 id="shortcutsDialogTitle">⌨ Keyboard Shortcuts &amp; Hotkeys</h2>
+      <button type="button" class="ghost-btn" data-close-dialog="shortcutsDialog">✕</button>
+    </div>
+    <div class="dialog-body">
+      <div class="stack-list">
+        <div class="list-row"><span>Omni-Search across active tables</span><kbd class="kbd-hint">Ctrl + K</kbd></div>
+        <div class="list-row"><span>Toggle Collapsible Sidebar Rail (220px / 56px)</span><kbd class="kbd-hint">Ctrl + B</kbd></div>
+        <div class="list-row"><span>Toggle Docked Execution Log Console</span><kbd class="kbd-hint">Ctrl + `</kbd></div>
+        <div class="list-row"><span>Save Instant Config Rollback Snapshot</span><kbd class="kbd-hint">Ctrl + S</kbd></div>
+        <div class="list-row"><span>Open Keyboard Shortcuts Reference</span><kbd class="kbd-hint">?</kbd></div>
+        <div class="list-row"><span>Switch Active Workspaces</span><kbd class="kbd-hint">1 – 8</kbd></div>
+        <div class="list-row"><span>Dismiss Active Modal / Drawer</span><kbd class="kbd-hint">Esc</kbd></div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- PIN Authentication Gate Dialog (Non-Dismissible while locked) -->
+  <dialog id="pinDialog" class="modal-dialog modal-sm" closedby="none" aria-labelledby="pinDialogTitle">
+    <form id="pinForm" class="pin-card">
+      <h2 id="pinDialogTitle">Unlock Greenroom</h2>
+      <p class="muted-hint">Enter your PIN once to remember this device.</p>
+      <input type="password" id="pinInput" class="field-input" placeholder="Enter PIN or passcode" autocomplete="current-password" required>
+      <p class="error-text" id="pinError" hidden></p>
+      <button type="submit" class="primary-btn full-w">Unlock &amp; Remember Device</button>
+    </form>
+  </dialog>
+
+  <script type="module" src="./static/app.js?v=0.3.0"></script>
+</body>
+</html>

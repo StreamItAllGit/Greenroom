@@ -1,0 +1,93 @@
+version: '1.0'
+paths:
+  db: data/greenroom.db
+  backups_dir: data/backups
+  drops_dir: drops
+  lock_file: data/greenroom.lock
+  takeout_dir: drops/takeout  # e.g. D:\Takeout or <CloudDrive>\Takeout
+  rom_sets: []  # e.g. ['D:\ROMs\Verified']
+  emudrive: ''  # e.g. D:\Emulation
+  plex_base_url: http://127.0.0.1:32400
+  plex_token: ''
+  calibre_db: ''
+media_and_games:
+  platforms:
+    snes: Super Nintendo Entertainment System
+    nes: Nintendo Entertainment System
+    n64: Nintendo 64
+    genesis: Sega Genesis
+    psx: Sony PlayStation
+    ps2: Sony PlayStation 2
+    gba: Game Boy Advance
+    gb: Game Boy
+    gbc: Game Boy Color
+    switch: Nintendo Switch
+    pc: PC
+  dat_dir: data/dats
+  review_queue_min_months: 6
+content_production:
+  target_buffer_per_channel: 4
+  channels:
+  - id: '@PrimaryChannel'
+    name: Primary Channel
+  - id: '@SecondaryChannel'
+    name: Secondary Channel
+series_pools:
+  default_pool_name: Default Pool
+  default:
+    initial_weight: 5.0
+    pick_penalty: 3.0
+    floor_weight: 1.0
+    unpicked_bonus: 1.0
+watch_queues:
+  watch_buffer_min_hours: 10
+  banned_channels: []
+  priority_channels: []
+google_workspace:
+  credentials_file: data/credentials.json
+  token_file: data/token.json
+  sheets:
+    games_mirror_id: ''
+    media_mirror_id: ''
+    books_mirror_id: ''
+    viewing_mirror_id: ''
+  docs:
+    hub_doc_id: ''
+    suggestions_doc_id: ''
+    reviews_doc_id: ''
+pricecharting:
+  api_key: ''
+  custom_csv_url: ''
+  csv_cache_file: data/pricecharting.csv
+  sync_interval_days: 7
+buffer:
+  access_token: ''
+steam:
+  api_key: ''
+  steam_id: ''
+retroachievements:
+  api_key: ''
+  username: ''  # e.g. your_ra_username
+twitch:
+  client_id: ''
+  client_secret: ''
+  channel: ''  # e.g. your_twitch_channel
+youtube:
+  api_key: ''
+  backup_api_key: ''
+  channels: []  # e.g. ['UCxxxxxxxxxxxxxxxxxxxxxx']
+bluesky:
+  handle: ''  # e.g. yourhandle.bsky.social
+  app_password: ''
+discord:
+  webhook_url: ''
+hardcover:
+  api_token: ''
+companion:
+  host: 0.0.0.0
+  port: 8420
+  https_port: 8443
+  pin: ''
+  trust_localhost: true
+  pid_file: data/companion.pid
+  log_file: data/companion.log

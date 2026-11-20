@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 2,
+  "lifecycleState": "active",
+  "name": "Greenroom",
+  "projectGroup": "Personal",
+  "relativePath": "Personal/Greenroom",
+  "containerTier": "Tier A (4-Folder)",
+  "ecosystemTier": "Tier2_SisterApp",
+  "appArchetype": "SIS",
+  "version": "0.3.0",
+  "activeMilestone": "0.3.0",
+  "goalMajorVersion": "1.0.0",
+  "stateChangedDate": "2026-11-20",
+  "lastVersionDate": "2026-11-20",
+  "productionSubpath": "StreamItAll\\Mother\\Greenroom",
+  "supersededBy": null,
+  "tasklistDetailLevel": 3,
+  "openTaskCount": 0,
+  "completedTaskCount": 11,
+  "openReportCount": 0,
+  "isPublicRepo": true,
+  "requireHumanReviewBeforePush": true,
+  "gates": {
+    "isGate0ScopePassed": true,
+    "isGate1PlanPassed": true,
+    "isGate2BuildPassed": true,
+    "isInspecterVerified": true,
+    "isTessaSynced": true
+  },
+  "notes": "Greenroom v0.3.0 Public Beta published with modular domain gates (Catalog/Kitchen/Studio), neutral presets, Foundation v0.5.2, DualSetup8 Online+Offline+Portable installers, full Stage 2 4-drive verification, and human-approved GitHub Public + Pages + Discord /post launch.",
+  "discordPost": {
+    "isEnabled": true,
+    "serverName": null,
+    "guildId": null,
+    "channelName": null,
+    "channelId": null,
+    "deliveryMethod": "webhook",
+    "secretEnvKey": "DISCORD_WEBHOOK_FOUNDATION",
+    "autoPostOnRelease": true
+  },
+  "updatedAtUtc": "2026-11-20T18:38:00.000Z"
+}
